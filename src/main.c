@@ -10,7 +10,13 @@ int main(int argc, char ** argv){
         perror("fopen");
         return 0;
     }
-    int16_t * data = read_wav_contents(f);
+    uint32_t header[6];
+    read_wav_header(f, header);
+    int16_t * data = read_wav_contents(f, header);
+
+    printf("Channels: %u\n", header[3]);
+    printf("Sample rate: %u\n", header[4]);
+    printf("Bit depth: %u\n", header[5]);
     printf("Random sample says: %d\n", data[50000]);
     free(data);
     fclose(f);
