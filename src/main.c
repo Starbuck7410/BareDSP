@@ -4,6 +4,7 @@
 #include "types.h"
 #include "read_wav_file.h"
 #include "fft.h" 
+#include "stft.h"
 
 
 int main(int argc, char ** argv){
@@ -24,10 +25,19 @@ int main(int argc, char ** argv){
 
 
 
-    cdouble_t * X = real_dft(data, N);
-    free(X);
-    export_ft(X, N/2, "dft.csv");
-    export_data(data, N, "audio.csv");
+    // cdouble_t * X = real_dft(data, N);
+    // free(X);
+    // export_ft(X, N/2, "dft.csv");
+    // export_data(data, N, "audio.csv");
+    
+    int winhop = 2048;
+
+    double * stft = real_stft(data, winhop, winhop, N);
+
+    export_stft(stft, N/winhop, winhop, "stft.csv");
+
+    free(stft);
+
     free(data);
     fclose(f);
 }
