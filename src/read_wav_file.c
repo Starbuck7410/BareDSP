@@ -54,6 +54,7 @@ int read_wav_header(FILE * wave, uint32_t * header_output){ //returns 1 on error
 int16_t * read_wav_contents(FILE * wave, uint32_t * header) { //returns NULL on error
     
     uint32_t chunk_size = header[1];
+    int is_big_endian = header[0];
     
     
     // Handle unhandled cases
@@ -66,7 +67,7 @@ int16_t * read_wav_contents(FILE * wave, uint32_t * header) { //returns NULL on 
         return NULL;
     }
     
-    uint16_t max_frame = 1 + chunk_size / (FRAME_SIZE * sizeof(int16_t));
+    uint32_t max_frame = 1 + chunk_size / (FRAME_SIZE * sizeof(int16_t));
     int16_t * data = (int16_t *)malloc(max_frame * FRAME_SIZE * sizeof(int16_t));
 
     for (uint16_t frame = 0; frame < max_frame; frame++){
@@ -78,12 +79,11 @@ int16_t * read_wav_contents(FILE * wave, uint32_t * header) { //returns NULL on 
             return NULL;
         }
         
-
-
-        
-        for(uint16_t i = 0; i < read_items; i++){
-            int16_t item_to_convert = data[FRAME_SIZE * frame + i];
-            data[FRAME_SIZE * frame + i] = ((item_to_convert << 8) & 0xFF00) | ((item_to_convert >> 8) & 0x00FF);
+        if(is_big_endian){
+            for(uint16_t i = 0; i < read_items; i++){
+                int16_t item_to_convert = data[FRAME_SIZE * frame + i];
+                data[FRAME_SIZE * frame + i] = ((item_to_convert << 8) & 0xFF00) | ((item_to_convert >> 8) & 0x00FF);
+            }
         }
     }
     
