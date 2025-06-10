@@ -23,18 +23,20 @@ int main(int argc, char ** argv){
     printf("Bit depth: %u\n", header[5]);
     printf("Sample count: %u\n", N);
 
-
+    int winhop = 4096;
 
     // cdouble_t * X = real_dft(data, N);
     // free(X);
     // export_ft(X, N/2, "dft.csv");
     // export_data(data, N, "audio.csv");
     
-    int winhop = 2048;
 
     double * stft = real_stft(data, winhop, winhop, N);
-
+    printf("Finished STFT, starting chromagram!\n");
+    double * chroma = generate_chromagram(stft, N/winhop, winhop);
     export_stft(stft, N/winhop, winhop, "stft.csv");
+    export_stft(chroma, N/winhop, 12, "chroma.csv");
+
 
     free(stft);
 

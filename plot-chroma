@@ -9,10 +9,6 @@ def load_csv(filename):
 def visualize(data):
     data = data.T  # Transpose so time is horizontal
 
-    # Keep only the positive frequency half
-    half_height = data.shape[0] // 2
-    data = data[:half_height, :]
-
     # Convert to dB scale (with floor)
     eps = 1e-10  # Avoid log(0)
     data_db = 20 * np.log10(np.maximum(data, eps))
@@ -21,7 +17,7 @@ def visualize(data):
     plt.colorbar(label='Magnitude (dB)')
     plt.title('STFT Visualization (Positive Frequencies, Log Scale)')
     plt.xlabel('Time')
-    plt.ylabel('Frequency Bin')
+    plt.ylabel('Note')
     plt.tight_layout()
     plt.show()
 
