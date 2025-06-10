@@ -1,7 +1,7 @@
 #!/bin/sh
 FLAGS="-lm"
 
-gcc ./src/* -o app "$FLAGS"
+gcc  -O3 ./src/* -o app "$FLAGS"
 if [[ $? != 0 ]]; then
     echo "Failed to compile"
     exit 1

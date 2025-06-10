@@ -33,7 +33,7 @@ int main(int argc, char ** argv){
 
     double * stft = real_stft(data, winhop, winhop, N);
     printf("Finished STFT, starting chromagram!\n");
-    double * chroma = generate_chromagram(stft, N/winhop, winhop);
+    double * chroma = generate_chromagram(stft, N/winhop, winhop, header[4]);
     export_stft(stft, N/winhop, winhop, "stft.csv");
     export_stft(chroma, N/winhop, 12, "chroma.csv");
 

@@ -50,6 +50,23 @@ void cmplx_print(cdouble_t number){
 cdouble_t * real_dft(int16_t * data , uint32_t N){
     // TODO: if N is power of 2, fft instead of DFT for massive gainz
     cdouble_t * X = (cdouble_t * ) malloc(N * sizeof(cdouble_t));
+    for (int k = 0; k < N/2; k++){
+        for (int i = 0; i < N; i++){
+            cdouble_t x_n = {((double) data[i]) / M_NORM, 0}; 
+            cdouble_t exp = cis(-i * 2 * M_PI * ((double) k)/N);
+            X[k] = cmplx_add(X[k], cmplx_multiply(exp, x_n));
+        }
+    }
+    for(int i = N/2; i < N; i++){
+        X[i].re = 0;
+        X[i].im = 0;
+    }
+    return X;
+}
+
+cdouble_t * real_full_dft(int16_t * data , uint32_t N){
+    // TODO: if N is power of 2, fft instead of DFT for massive gainz
+    cdouble_t * X = (cdouble_t * ) malloc(N * sizeof(cdouble_t));
     for (int k = 0; k < N; k++){
         for (int i = 0; i < N; i++){
             cdouble_t x_n = {((double) data[i]) / M_NORM, 0}; 
@@ -59,6 +76,7 @@ cdouble_t * real_dft(int16_t * data , uint32_t N){
     }
     return X;
 }
+
 
 
 

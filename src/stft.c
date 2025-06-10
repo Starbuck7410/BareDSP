@@ -1,4 +1,3 @@
-
 #include "types.h"
 #include "fft.h"
 #include <stdint.h>
@@ -8,15 +7,13 @@
 
 
 double * real_stft(int16_t * data, uint32_t window_size, uint16_t hop_size, uint32_t N){
-    // double [(N/hop_size) + 1][window_size] stft;
-    int W = window_size;
     double * stft = malloc(((N/hop_size) + 1) * window_size * sizeof(double));
     
     for(int t = 0; t < N/hop_size; t++){
         uint32_t offset = t * hop_size;
         cdouble_t * fft = real_dft(data + offset, window_size);
         for (int i = 0; i < window_size; i++) {
-            stft[t * W + i] = cmplx_abs(fft[i]);
+            stft[t * window_size + i] = cmplx_abs(fft[i]);
         }
     }
     return stft;
@@ -24,12 +21,17 @@ double * real_stft(int16_t * data, uint32_t window_size, uint16_t hop_size, uint
 
 double * generate_chromagram(double * stft, uint32_t len, uint32_t window_size, uint32_t sample_rate){
     double * chromagram = (double *) malloc(12*len*sizeof(double));
+    for (uint32_t i = 0; i < 12*len; i++){
+        chromagram[i] = 0.0;
+    }
     for (size_t i = 0; i < len; i++) {
-        for (size_t j = 0; j < window_size; j++) {
+        for (size_t j = 1; j < window_size/2; j++) {
+            double frequency = (double) j * sample_rate / window_size;
             double item = stft[i * window_size + j];
-            int idx = ((int) round(log2((j * sample_rate) / (window_size * NOTE_C)))) % 12;
-            // printf("%d", idx);
-            chromagram[i * 12 + idx] += item;
+            int note = ((int) round(12 * log2(frequency / NOTE_C)));
+            int idx = note % 12;
+            double weight = 1 - (12 * log2(frequency / NOTE_C) - note);
+            chromagram[i * 12 + idx] += item * weight;
         }
     }
     return chromagram;
