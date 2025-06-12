@@ -10,10 +10,10 @@ Feel free to fork, study, or contribute ideas — this is a hobby project with a
 
 ## What I'm currently working on
 
-- **FFT** - Fast Fourier Transform, implemented from scratch (Currently only DFT is implemented, which is slow but works)
+- ~~**FFT** - Fast Fourier Transform, implemented from scratch~~ FFT Implemented!
 - ~~**STFT** - Short-Time Fourier Transform, with a set window function and variable window size and hop length~~ Done! Here's an STFT of my beautiful voice!<br><image src=meta/stft.png width="512">
-- **Bitmap image export** - To visualize output data (Currently uses matplotlib, and I hate python.)
 - ~~**Chromagram generation** - For pitch class profiles and harmonic content~~ I also have that now! You can even use it to tell I sing waaay off-key 🫢 <br><image src=meta/chroma.png width="512">
+- **Bitmap image export** - To visualize output data (Currently uses matplotlib, and I hate python.)
 
 ## Potential future Ideas
 

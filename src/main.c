@@ -23,8 +23,9 @@ int main(int argc, char ** argv){
     printf("Bit depth: %u\n", header[5]);
     printf("Sample count: %u\n", N);
 
-    int winhop = 4096;
-    int winsize = 4 * winhop;
+    int winsize = 16384;
+    int fade = winsize / 4;
+    int winhop = winsize / 8;
     int len = N / winhop;
     int sample_rate = header[4];
 
@@ -34,7 +35,7 @@ int main(int argc, char ** argv){
     // export_data(data, N, "audio.csv");
     
 
-    double * stft = real_stft(data, winsize, winhop, N);
+    double * stft = real_stft(data, winsize, winhop, fade, N);
 
     printf("Finished STFT, starting chromagram!\n");
 
