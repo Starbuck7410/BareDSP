@@ -10,8 +10,8 @@ def visualize(data):
     data = data.T  # Transpose so time is horizontal
 
     # Keep only the positive frequency half
-    half_height = data.shape[0] // 2
-    data = data[:half_height, :]
+    # half_height = data.shape[0] // 2
+    # data = data[:half_height, :]
 
     # Convert to dB scale (with floor)
     eps = 1e-10  # Avoid log(0)

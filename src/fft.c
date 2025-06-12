@@ -14,6 +14,13 @@ cdouble_t cmplx_multiply(cdouble_t x, cdouble_t y){
 
 }
 
+cdouble_t cmplx_magnify(double magnitude, cdouble_t number){
+    cdouble_t out = {number.re, number.im};
+    out.re *= magnitude;
+    out.im *= magnitude;
+    return out;
+}
+
 cdouble_t cmplx_add(cdouble_t x, cdouble_t y){
     cdouble_t sum = {0,0};
     sum.re = x.re + y.re;
@@ -46,37 +53,86 @@ void cmplx_print(cdouble_t number){
     return;
 }
 
+int is_power_of_two(uint32_t number){
+    return (number & (number - 1)) == 0;
+}
+
+
+
+void fft_recursive(cdouble_t * X, uint32_t N) {
+    if (N <= 1) return;
+
+    cdouble_t * even = malloc((N / 2) * sizeof(cdouble_t));
+    cdouble_t * odd  = malloc((N / 2) * sizeof(cdouble_t));
+    cdouble_t * oddbefore = odd;
+
+    if(even == NULL || odd == NULL){
+        printf("ERROR: fft_recursive() - Failed to allocate memory.\n");
+        return;
+    }
+
+    for (int i = 0; i < N / 2; i++) {
+        even[i] = X[2 * i];
+        odd[i]  = X[2 * i + 1];
+    }
+
+    fft_recursive(even, N/2);
+    fft_recursive(odd, N/2);
+
+    for (int k = 0; k < N/2; k++) {
+        cdouble_t exp = cis((double) -2 * M_PI * k / N);
+        cdouble_t adj_odd = cmplx_multiply(exp, odd[k]);
+        X[k] = cmplx_add(even[k], adj_odd);
+        adj_odd = cmplx_magnify(-1, adj_odd);
+        X[k + N/2] = cmplx_add(even[k], adj_odd);
+    }
+
+    free(even);
+    free(odd);
+}
+
+cdouble_t * real_fft(int16_t * data, uint32_t N){
+    cdouble_t * X = (cdouble_t * ) malloc((N) * sizeof(cdouble_t));
+    for(size_t i = 0; i < N; i++){
+        X[i].re = ((double) data[i]) / M_NORM;
+        X[i].im = 0;
+    }  
+    fft_recursive(X, N);
+
+    return X;
+
+
+}
 
 cdouble_t * real_dft(int16_t * data , uint32_t N){
-    // TODO: if N is power of 2, fft instead of DFT for massive gainz
-    cdouble_t * X = (cdouble_t * ) malloc(N * sizeof(cdouble_t));
-    for (int k = 0; k < N/2; k++){
-        for (int i = 0; i < N; i++){
-            cdouble_t x_n = {((double) data[i]) / M_NORM, 0}; 
-            cdouble_t exp = cis(-i * 2 * M_PI * ((double) k)/N);
-            X[k] = cmplx_add(X[k], cmplx_multiply(exp, x_n));
+    if(N < 1){
+        printf("ERROR: real_dft() - N cannot be 0.\n");
+        return NULL;
+    }
+    cdouble_t * X;
+    
+    if(is_power_of_two(N)){
+        X = real_fft(data, N);
+    }else{
+
+        X = (cdouble_t * ) malloc((N / 2) * sizeof(cdouble_t));
+        cdouble_t * X;
+        for(size_t i = 0; i < N/2; i++){
+            X[i].re = 0;
+            X[i].im = 0;
         }
+        for (int k = 0; k < N/2; k++){
+            for (int i = 0; i < N; i++){
+                double x_n = ((double) data[i]) / M_NORM; 
+                cdouble_t exp = cis(-i * 2 * M_PI * ((double) k)/N);
+                X[k] = cmplx_add(X[k], cmplx_magnify(x_n, exp));
+            }
+        }
+
     }
-    for(int i = N/2; i < N; i++){
-        X[i].re = 0;
-        X[i].im = 0;
-    }
+
     return X;
 }
-
-cdouble_t * real_full_dft(int16_t * data , uint32_t N){
-    // TODO: if N is power of 2, fft instead of DFT for massive gainz
-    cdouble_t * X = (cdouble_t * ) malloc(N * sizeof(cdouble_t));
-    for (int k = 0; k < N; k++){
-        for (int i = 0; i < N; i++){
-            cdouble_t x_n = {((double) data[i]) / M_NORM, 0}; 
-            cdouble_t exp = cis(-i * 2 * M_PI * ((double) k)/N);
-            X[k] = cmplx_add(X[k], cmplx_multiply(exp, x_n));
-        }
-    }
-    return X;
-}
-
 
 
 

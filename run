@@ -1,9 +1,10 @@
 #!/bin/sh
 FLAGS="-lm"
 
-gcc  -O3 ./src/* -o app "$FLAGS"
+gcc -O3 ./src/* -o app "$FLAGS"
 if [[ $? != 0 ]]; then
     echo "Failed to compile"
     exit 1
 fi
-./app $1
+
+time ./app $1
