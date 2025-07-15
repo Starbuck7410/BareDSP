@@ -1,7 +1,7 @@
 #include "types.h"
 #include <stdint.h>
 
-int export_stft(double * X, uint32_t rows, uint32_t cols, char * filename);
-int export_chromagram(double * X, uint32_t len, char * filename);
-double * real_stft(int16_t * data, uint32_t window_size, uint16_t hop_size, uint32_t fade, uint32_t N);
-double * generate_chromagram(double * stft, uint32_t len, uint32_t window_size, uint32_t sample_rate);
+int export_stft(struct stft_t stft, char * filename);
+int export_chromagram(struct chromagram_t chromagram, char * filename);
+void real_stft(struct stft_t * stft, struct audio_u16_t audio, struct window_t window);
+void generate_chromagram(struct chromagram_t * chromagram, struct stft_t stft);

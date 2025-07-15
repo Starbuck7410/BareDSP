@@ -15,18 +15,22 @@ int main(int argc, char ** argv){
     }
     uint32_t header[6];
     read_wav_header(f, header);
-    int16_t * data = read_wav_contents(f, header);
-    
-    uint32_t N = header[1]/sizeof(uint16_t);
+
+    struct audio_u16_t audio;
+    audio.data = read_wav_contents(f, header);
+    audio.length = header[1]/sizeof(uint16_t);
+    audio.rate = header[4];
+
     printf("Channels: %u\n", header[3]);
     printf("Sample rate: %u\n", header[4]);
     printf("Bit depth: %u\n", header[5]);
-    printf("Sample count: %u\n", N);
+    printf("Sample count: %u\n", audio.length);
+
 
     int winsize = 16384;
     int fade = winsize / 4;
     int winhop = winsize / 8;
-    int len = N / winhop;
+    int len = audio.length / winhop;
     int sample_rate = header[4];
 
     // cdouble_t * X = real_dft(data, N);
@@ -34,20 +38,30 @@ int main(int argc, char ** argv){
     // export_ft(X, N/2, "dft.csv");
     // export_data(data, N, "audio.csv");
     
+    struct window_t window = {
+        .data = NULL,
+        .length = winsize,
+        .fade = fade,
+        .hop = winhop
+    };
 
-    double * stft = real_stft(data, winsize, winhop, fade, N);
+    struct stft_t stft;
+
+    real_stft(&stft, audio, window );
 
     printf("Finished STFT, starting chromagram!\n");
 
-    double * chroma = generate_chromagram(stft, len, winsize, sample_rate);
+    struct chromagram_t chromagram;
 
-    export_stft(stft, len, winsize, "stft.csv");
+    generate_chromagram(& chromagram, stft);
 
-    export_chromagram(chroma, len, "chroma.csv");
+    export_stft(stft, "stft.csv");
+
+    export_chromagram(chromagram, "chroma.csv");
 
 
-    free(stft);
-    free(chroma);
-    free(data);
+    free(stft.data);
+    free(chromagram.data);
+    free(audio.data);
     fclose(f);
 }

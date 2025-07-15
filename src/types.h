@@ -4,8 +4,34 @@
 #define NOTE_C 261.63
 
 
-typedef struct ComplexDouble{
+typedef struct cdouble_t{
     double re;
     double im;
 
 } cdouble_t;
+
+struct audio_u16_t{
+    uint16_t * data;
+    int length;
+    int rate;
+};
+
+struct stft_t {
+    double * data;
+    int bins;
+    int length; 
+    int rate;
+};
+
+
+struct chromagram_t {
+    double * data;
+    int length; 
+};
+
+struct window_t {
+    double * data;
+    int fade;
+    int length; 
+    int hop;
+};
