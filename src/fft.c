@@ -59,7 +59,6 @@ int is_power_of_two(int number){
 }
 
 
-
 void fft_recursive(cdouble_t * X, uint32_t N) {
     if (N <= 1) return;
 
@@ -133,34 +132,4 @@ cdouble_t * calculate_dft(double * data , uint32_t N){
         real_dft(data, N, X);
     }
     return X;
-}
-
-
-void export_ft(cdouble_t * X, int N, char * filename) {
-    FILE* f = fopen(filename, "w");
-    if (!f) {
-        perror("failed to export transform file");
-        return;
-    }
-
-    for (int i = 0; i < N; i++) {
-        double mag = cmplx_abs(X[i]);
-        fprintf(f, "%d,%.10f\n", i, mag);
-    }
-
-    fclose(f);
-}
-
-void export_data(int16_t * X, int N, char * filename) {
-    FILE* f = fopen(filename, "w");
-    if (!f) {
-        perror("failed to export transform file");
-        return;
-    }
-
-    for (int i = 0; i < N; i++) {
-        fprintf(f, "%d,%.d\n", i, X[i]);
-    }
-
-    fclose(f);
 }

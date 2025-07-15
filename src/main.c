@@ -26,17 +26,11 @@ int main(int argc, char ** argv){
     printf("Bit depth: %u\n", header[5]);
     printf("Sample count: %u\n", audio.length);
 
-
     int winsize = 16384;
     int fade = winsize / 4;
     int winhop = winsize / 8;
     int len = audio.length / winhop;
     int sample_rate = header[4];
-
-    // cdouble_t * X = real_dft(data, N);
-    // free(X);
-    // export_ft(X, N/2, "dft.csv");
-    // export_data(data, N, "audio.csv");
     
     struct window_t window = {
         .data = NULL,

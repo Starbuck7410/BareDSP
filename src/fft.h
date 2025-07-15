@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdint.h>
 #include "types.h"
 
@@ -9,5 +8,3 @@ void cmplx_print(cdouble_t number);
 cdouble_t cmplx_normalize(cdouble_t number);
 double cmplx_abs(cdouble_t number);
 cdouble_t * calculate_dft(double * data , uint32_t N);
-void export_ft(cdouble_t * X, int N, char * filename);
-void export_data(int16_t * X, int N, char * filename);
