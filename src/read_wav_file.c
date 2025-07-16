@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "types.h"
 
 #define FRAME_SIZE 4096
 
@@ -51,7 +52,7 @@ int read_wav_header(FILE * wave, uint32_t * header_output){ //returns 1 on error
 
 }
 
-int16_t * read_wav_contents(FILE * wave, uint32_t * header) { //returns NULL on error
+int16_t * read_m16_wav_contents(FILE * wave, uint32_t * header) { //returns NULL on error
     
     uint32_t chunk_size = header[1];
     int is_big_endian = header[0];
@@ -89,4 +90,13 @@ int16_t * read_wav_contents(FILE * wave, uint32_t * header) { //returns NULL on 
     
     return data;
     
+}
+
+void read_m16_wav_file(struct audio_m16_t * audio, FILE * wave){ // Mono 16 bit
+    uint32_t header[6];
+    read_wav_header(wave, header);
+    
+    (*audio).data = read_m16_wav_contents(wave, header);
+    (*audio).length = header[1]/sizeof(int16_t);
+    (*audio).rate = header[4];
 }

@@ -20,7 +20,7 @@ Feel free to fork, study, or contribute ideas — this is a hobby project with a
 These may be added later as the project evolves and I get bored:
 
 - Chord recognition using the Viterbi algorithm, focused on major/minor detection and based on harmonic trends and data from [Hooktheory Trends](https://www.hooktheory.com/trends)
-- Maybe X11 API integration? Will be used for simple visual output
+- Maybe X11 API integration (I couldn't get wayland to work lol)? Will be used for simple visual output
 
 
 

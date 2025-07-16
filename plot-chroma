@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
+NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B']
+
 def load_csv(filename):
     return np.loadtxt(filename, delimiter=',')
 
@@ -14,8 +16,13 @@ def visualize(data):
     data_db = 20 * np.log10(np.maximum(data, eps))
 
     plt.imshow(data_db, cmap='viridis', aspect='auto', origin='lower')
+
+    # Label y-axis with note names
+    num_notes = data_db.shape[0]
+    plt.yticks(ticks=np.arange(num_notes), labels=NOTE_NAMES)
+
     plt.colorbar(label='Magnitude (dB)')
-    plt.title('STFT Visualization (Positive Frequencies, Log Scale)')
+    plt.title('Chromagram visualization')
     plt.xlabel('Time')
     plt.ylabel('Note')
     plt.tight_layout()
@@ -32,4 +39,3 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error: {e}")
         sys.exit(1)
-

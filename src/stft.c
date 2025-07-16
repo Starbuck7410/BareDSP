@@ -1,54 +1,15 @@
 #include "types.h"
 #include "fft.h"
+#include "windows.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
 
+void real_stft(struct stft_t * stft, struct audio_m16_t audio, struct window_t window){
 
-void window_trapezoid(struct window_t * window){
-    int window_size = (*window).length;
-    int fade = (*window).fade;
-    double * window_data = (double *) malloc((window_size + fade) * sizeof(double));
-    for(int i = 0; i < fade; i++){
-        window_data[i] = (double) i / fade;
-    }
-    for(int i = fade; i < window_size - fade; i++){
-        window_data[i] = 1.0;
-    }
-    for(int i = window_size - fade; i < window_size; i++){
-        window_data[i] = (window_size - i)/fade;
-    }
-
-    (* window).data = window_data;
-
-    return;
-}
-
-void window_cosine(struct window_t * window){
-    int window_size = (*window).length;
-    int fade = (*window).fade;
-    double * window_data = (double *) malloc((window_size + fade) * sizeof(double));
-    for(int i = 0; i < fade; i++){
-        window_data[i] = 0.5 - 0.5 * cos(M_PI * i / fade);
-    }
-    for(int i = fade; i < window_size - fade; i++){
-        window_data[i] = 1.0;
-    }
-    for(int i = window_size - fade; i < window_size; i++){
-        window_data[i] =  0.5 - 0.5 * cos(M_PI * (i - window_size) / fade);
-    }
-
-    (* window).data = window_data;
-
-    return;
-}
-
-
-void real_stft(struct stft_t * stft, struct audio_16_t audio, struct window_t window){
-
-    window_cosine(& window);
+    create_window(& window);
     double * stft_data = (double *) malloc((audio.length/window.hop) * (window.length / 2) * sizeof(double) );
     cdouble_t * fft;
     double * data_windowed = (double *) malloc((window.length) * sizeof(double));
@@ -61,7 +22,7 @@ void real_stft(struct stft_t * stft, struct audio_16_t audio, struct window_t wi
             } else {
                 data_windowed[i] = 0.0;
             }
-}
+        }
         fft = calculate_dft(data_windowed, window.length);
         for (int i = 0; i < window.length / 2; i++) {
             stft_data[t * window.length / 2 + i] = cmplx_abs(fft[i]);
@@ -78,6 +39,39 @@ void real_stft(struct stft_t * stft, struct audio_16_t audio, struct window_t wi
     return;
 }
 
+double find_median(double * filter, int length){
+    for (int i = 0; i < length; i++){
+        for (int j = 0; j < length - 1; j++){
+            if(filter[j] < filter[j+1]){
+                double tmp = filter[j+1];
+                filter[j+1] = filter[j];
+                filter[j] = tmp; 
+            } 
+        }
+    }
+    
+    return (length & 1) ? filter[length/2] : (filter[length/2 - 1] + filter[length/2]) / 2.0;
+}
+
+void median_harmonic_filter(struct stft_t * stft, int width){
+    int stft_bins = (*stft).bins;
+    int stft_length = (*stft).length;
+    double * filtered_data = (double *) malloc(stft_bins * stft_length * sizeof(double));
+    double filter[width];
+
+    for (int i = 0; i < stft_length; i++){
+        for (int j = 0; j < stft_bins; j++){
+            for (int k = 0; k < width; k++){
+                filter[k] = ((i + k - width/2) >= 0 && (i + k - width/2) < stft_length) ? (*stft).data[(i + k - width/2) * stft_bins + j] : 0;
+            }
+            filtered_data[i * stft_bins + j] = find_median(filter, width);
+        }
+    }
+    free((*stft).data);
+    (*stft).data = filtered_data;
+    return;
+}
+
 
 void generate_chromagram(struct chromagram_t * chromagram, struct stft_t stft){
     double * chromagram_data = (double *) malloc(12 * stft.length * sizeof(double));
@@ -88,14 +82,12 @@ void generate_chromagram(struct chromagram_t * chromagram, struct stft_t stft){
         for (uint32_t j = 0; j < stft.bins; j++) {
             double frequency = (double) j * stft.rate / (stft.bins * 2);
             if (frequency < 20 || frequency > 10000) continue;
-            // printf("Accessing stft[%d][%d] (%d)\n", i, j, i * window_size/2 + j);
             
             double item = stft.data[i * stft.bins + j];
             int note = ((int) round(12 * log2(frequency / NOTE_C)));
             int idx = note % 12;
             while(idx < 0) idx += 12;
-            double weight = pow(1 - (12 * log2(frequency / NOTE_C) - note), 1);
-            // printf("Accessing chromagram at [%d][%d] (%d)\n", i, idx, i * 12 + idx);
+            double weight = pow(1 - (12 * log2(frequency / NOTE_C) - note), 2); // Change the power to affect the weighting
             chromagram_data[i * 12 + idx] += item * weight;
         }
     }

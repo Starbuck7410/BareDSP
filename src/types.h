@@ -10,7 +10,7 @@ typedef struct cdouble_t{
 
 } cdouble_t;
 
-struct audio_16_t{
+struct audio_m16_t{
     int16_t * data;
     int length;
     int rate;
@@ -31,6 +31,7 @@ struct chromagram_t {
 
 struct window_t {
     double * data;
+    char type[5];
     int fade;
     int length; 
     int hop;
