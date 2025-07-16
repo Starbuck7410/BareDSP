@@ -16,7 +16,7 @@ int main(int argc, char ** argv){
     uint32_t header[6];
     read_wav_header(f, header);
 
-    struct audio_u16_t audio;
+    struct audio_16_t audio;
     audio.data = read_wav_contents(f, header);
     audio.length = header[1]/sizeof(uint16_t);
     audio.rate = header[4];
@@ -26,9 +26,9 @@ int main(int argc, char ** argv){
     printf("Bit depth: %u\n", header[5]);
     printf("Sample count: %u\n", audio.length);
 
-    int winsize = 16384;
-    int fade = winsize / 4;
-    int winhop = winsize / 8;
+    int winsize = 8192;
+    int fade = winsize / 3; // The fade is defined as samples to fade-in and fade-out, has to be less than 0.5 winsize
+    int winhop = winsize / 3;
     int len = audio.length / winhop;
     int sample_rate = header[4];
     
@@ -41,7 +41,9 @@ int main(int argc, char ** argv){
 
     struct stft_t stft;
 
-    real_stft(&stft, audio, window );
+    real_stft(& stft, audio, window );
+    
+    export_stft(stft, "stft.csv");
 
     printf("Finished STFT, starting chromagram!\n");
 
@@ -49,13 +51,12 @@ int main(int argc, char ** argv){
 
     generate_chromagram(& chromagram, stft);
 
-    export_stft(stft, "stft.csv");
 
     export_chromagram(chromagram, "chroma.csv");
 
 
     free(stft.data);
-    free(chromagram.data);
+    // free(chromagram.data);
     free(audio.data);
     fclose(f);
 }

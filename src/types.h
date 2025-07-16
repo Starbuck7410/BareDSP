@@ -1,6 +1,6 @@
 #include <stdint.h>
 #define M_PI 3.14159265358979323846
-#define M_NORM 32767
+#define M_NORM 32768
 #define NOTE_C 261.63
 
 
@@ -10,8 +10,8 @@ typedef struct cdouble_t{
 
 } cdouble_t;
 
-struct audio_u16_t{
-    uint16_t * data;
+struct audio_16_t{
+    int16_t * data;
     int length;
     int rate;
 };

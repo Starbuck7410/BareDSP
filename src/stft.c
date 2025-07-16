@@ -26,19 +26,42 @@ void window_trapezoid(struct window_t * window){
     return;
 }
 
+void window_cosine(struct window_t * window){
+    int window_size = (*window).length;
+    int fade = (*window).fade;
+    double * window_data = (double *) malloc((window_size + fade) * sizeof(double));
+    for(int i = 0; i < fade; i++){
+        window_data[i] = 0.5 - 0.5 * cos(M_PI * i / fade);
+    }
+    for(int i = fade; i < window_size - fade; i++){
+        window_data[i] = 1.0;
+    }
+    for(int i = window_size - fade; i < window_size; i++){
+        window_data[i] =  0.5 - 0.5 * cos(M_PI * (i - window_size) / fade);
+    }
 
-void real_stft(struct stft_t * stft, struct audio_u16_t audio, struct window_t window){
+    (* window).data = window_data;
 
-    window_trapezoid(& window);
+    return;
+}
+
+
+void real_stft(struct stft_t * stft, struct audio_16_t audio, struct window_t window){
+
+    window_cosine(& window);
     double * stft_data = (double *) malloc((audio.length/window.hop) * (window.length / 2) * sizeof(double) );
     cdouble_t * fft;
     double * data_windowed = (double *) malloc((window.length) * sizeof(double));
 
     for(int t = 0; t < audio.length/window.hop; t++){
         uint32_t offset = t * window.hop;
-        for(int i = 0; i < window.length; i++ ){
-            data_windowed[i] = ((double) audio.data[offset + i] / M_NORM) * window.data[i];
-        }
+        for(int i = 0; i < window.length; i++) {
+            if (offset + i < audio.length) {
+                data_windowed[i] = ((double) (audio.data[offset + i]) / M_NORM) * window.data[i];
+            } else {
+                data_windowed[i] = 0.0;
+            }
+}
         fft = calculate_dft(data_windowed, window.length);
         for (int i = 0; i < window.length / 2; i++) {
             stft_data[t * window.length / 2 + i] = cmplx_abs(fft[i]);
@@ -47,8 +70,8 @@ void real_stft(struct stft_t * stft, struct audio_u16_t audio, struct window_t w
     }
     free(window.data);
     free(data_windowed);
-
-    (* stft).length = audio.length;
+    
+    (* stft).length = audio.length/window.hop;
     (* stft).bins = window.length/2;
     (* stft).data = stft_data;
     (* stft).rate = audio.rate;
@@ -64,7 +87,7 @@ void generate_chromagram(struct chromagram_t * chromagram, struct stft_t stft){
     for (uint32_t i = 0; i < stft.length; i++) {
         for (uint32_t j = 0; j < stft.bins; j++) {
             double frequency = (double) j * stft.rate / (stft.bins * 2);
-            if (frequency < 20 || frequency > 5000) continue;
+            if (frequency < 20 || frequency > 10000) continue;
             // printf("Accessing stft[%d][%d] (%d)\n", i, j, i * window_size/2 + j);
             
             double item = stft.data[i * stft.bins + j];
@@ -89,7 +112,6 @@ int export_stft(struct stft_t stft, char * filename) {
         perror("Error opening file");
         return -1;
     }
-
     for (size_t i = 0; i < stft.length; i++) {
         for (size_t j = 0; j < stft.bins; j++) {
             fprintf(fp, "%.10f", stft.data[i * stft.bins + j]); 

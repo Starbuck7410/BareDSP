@@ -125,7 +125,10 @@ cdouble_t * calculate_dft(double * data , uint32_t N){
         return NULL;
     }
     cdouble_t * X = (cdouble_t * ) malloc((N / 2) * sizeof(cdouble_t));
-    
+    for (int i = 0; i < N / 2; i++){
+        X[i].re = 0;
+        X[i].im = 0;
+    }
     if(is_power_of_two(N) != 0){
         real_fft(data, N, X);
     }else{
