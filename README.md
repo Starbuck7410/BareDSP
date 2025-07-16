@@ -6,7 +6,7 @@ My goal is to explore and implement core audio DSP concepts from scratch, while 
 
 This project does not currently aim to be a complete DSP library, nor does it claim to be performant in any sense, because it serves as a sandbox for learning and iterating on low-level audio concepts.
 
-Feel free to fork, study, or contribute ideas — this is a hobby project with an no real vision.
+Feel free to fork, study, or contribute ideas - this is a hobby project with an no real vision.
 
 ## What I'm currently working on
 

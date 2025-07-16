@@ -31,7 +31,7 @@ struct chromagram_t {
 
 struct window_t {
     double * data;
-    char type[5];
+    char type[6];
     int fade;
     int length; 
     int hop;

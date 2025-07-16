@@ -34,13 +34,13 @@ int main(int argc, char ** argv){
         .length = winsize,
         .fade = fade,
         .hop = winhop,
-        .type = "trpzd"
+        .type = "blkmh"
     };
 
     
     struct stft_t stft;
     real_stft(& stft, audio, window );
-    median_harmonic_filter(&stft, 5);
+    // median_harmonic_filter(&stft, 5);
     export_stft(stft, "stft.csv");
 
     
