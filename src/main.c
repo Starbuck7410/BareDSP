@@ -5,6 +5,7 @@
 #include "read_wav_file.h"
 #include "fft.h" 
 #include "stft.h"
+#include "recognition.h"
 
 
 int main(int argc, char ** argv){
@@ -47,6 +48,19 @@ int main(int argc, char ** argv){
     struct chromagram_t chromagram;
     generate_chromagram(& chromagram, stft);
     export_chromagram(chromagram, "chroma.csv");
+    
+    struct note_t chord[3];
+    
+    chord[0] = synthesize_note(0);
+    chord[1] = synthesize_note(4);
+    chord[2] = synthesize_note(7);
+    
+    double similarity = chord_similarity(detect_chord_signature(chromagram, 0), synthesize_chord(chord, 3));
+    printf("Similarity with C: %.3f\n", similarity);
+    
+    chord[1] = synthesize_note(3);
+    similarity = chord_similarity(detect_chord_signature(chromagram, 0), synthesize_chord(chord, 3));
+    printf("Similarity with Cm: %.3f\n", similarity);
     free(chromagram.data);
     
     
