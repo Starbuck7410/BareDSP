@@ -81,13 +81,13 @@ void generate_chromagram(struct chromagram_t * chromagram, struct stft_t stft){
     for (uint32_t i = 0; i < stft.length; i++) {
         for (uint32_t j = 0; j < stft.bins; j++) {
             double frequency = (double) j * stft.rate / (stft.bins * 2);
-            if (frequency < 20 || frequency > 10000) continue;
+            if (frequency < 20 || frequency > 5000) continue;
             
             double item = stft.data[i * stft.bins + j];
             int note = ((int) round(12 * log2(frequency / NOTE_C)));
             int idx = note % 12;
             while(idx < 0) idx += 12;
-            double weight = pow(1 - (12 * log2(frequency / NOTE_C) - note), 2); // Change the power to affect the weighting
+            double weight = pow(1 - (12 * log2(frequency / NOTE_C) - note), 1); // Change the power to affect the weighting
             chromagram_data[i * 12 + idx] += item * weight;
         }
     }

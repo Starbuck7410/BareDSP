@@ -2,7 +2,7 @@
 #define M_PI 3.14159265358979323846
 #define M_NORM 32768
 #define NOTE_C 261.63
-#define M_ALPHA 0.5
+#define M_ALPHA 0.3
 
 typedef struct cdouble_t{
     double re;
@@ -45,4 +45,12 @@ struct note_t {
 struct chord_t {
     double signature[12];
     int notes[12]; // 0 is inactive, 1 is active, -1 is unknown
+};
+
+struct chord_dict_t {
+    int length;
+    double threshold;
+    struct chord_t * chord_array;
+    char ** chord_names;
+    double * transition_mtx;
 };

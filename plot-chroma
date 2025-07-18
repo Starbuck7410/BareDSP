@@ -12,7 +12,7 @@ def visualize(data):
     data = data.T  # Transpose so time is horizontal
 
     # Convert to dB scale (with floor)
-    eps = 1e-10  # Avoid log(0)
+    eps = 1e-5  # Avoid log(0)
     data_db = 20 * np.log10(np.maximum(data, eps))
 
     plt.imshow(data_db, cmap='viridis', aspect='auto', origin='lower')

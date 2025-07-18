@@ -2,8 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 
-int mod(int a, int b)
-{
+int mod(int a, int b){
     int mod = a % b;
     return mod < 0 ? mod + b : mod;
 }
@@ -42,14 +41,6 @@ struct chord_t synthesize_chord(struct note_t * notes, int n){
     return chord;
 }
 
-struct chord_t construct_chord(double * notes){
-    struct chord_t chord;
-    for(int i = 0; i < 12; i++){
-        chord.signature[i] += notes[i]; 
-        chord.notes[i] = -1; 
-    }
-    return chord;
-}
 
 double chord_similarity(struct chord_t a, struct chord_t b){
     double scale_a = 0;
@@ -76,6 +67,31 @@ struct chord_t detect_chord_signature(struct chromagram_t chromagram, int n){
         chord.notes[i] = -1;
     }
     return chord;
+}
+
+
+int find_best_match(double * similarities, struct chord_dict_t dictionary){
+    int best_idx = 0;
+    int second_best_idx = 0;
+    for (int i = 0; i < dictionary.length; i++){
+        best_idx = (similarities[best_idx] > similarities[i]) ? best_idx : i; 
+    }
+    for (int i = 0; i < dictionary.length; i++){
+        second_best_idx = (similarities[second_best_idx] > similarities[i] && (similarities[second_best_idx] < similarities[best_idx])) ? second_best_idx : i; 
+    }
+    
+    // double difference = similarities[best_idx] - similarities[second_best_idx];
+    double difference = similarities[second_best_idx] / similarities[best_idx];
+    return (difference > dictionary.threshold) ? best_idx : -1; 
+}
+
+
+int find_matching_chord(struct chord_t chord, struct chord_dict_t dictionary){
+    double similarities[dictionary.length];
+    for (int i = 0; i < dictionary.length; i++){
+        similarities[i] = chord_similarity(chord, dictionary.chord_array[i]);
+    }
+    return find_best_match(similarities, dictionary);
 }
 
 void print_chord(struct chord_t chord){
